@@ -108,3 +108,184 @@ ax = plt.gca()
 ax.set_title('Mean Average Temperature Map from 2071 to 2100 for ssp585')
 plt.savefig(os.path.join(path, 'mean_tas_2071_2100_ssp585'), dpi=300)
 plt.show()
+
+
+# Exercise 04
+
+# Question 01 (To analyze climate data for your city, find its latitude and longitude, then convert these to x,y
+# indices based on the climate model’s grid system.)
+# Latitude and Longitude of my city `Islamabad` are 33.738045 and 73.084488 respectively.
+
+islamabad_lat = 33.738045
+islamabad_lon = 73.084488
+
+# Find nearest grid points in the model dataset for 1850
+nearest_lat_index = abs(dset_1850['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(dset_1850['lon'] - islamabad_lon).argmin().item()
+
+# Question 02 (Extract the air temperature time series data for your city from the five netCDF files.)
+
+# Extract data at Islamabad's location
+climate_data_at_islamabad_1850 = dset_1850['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# %%
+
+fp_1950 = r'E:\AA\HYXE_consultancy\geo_env\Climate_Model_Data\tas_Amon_GFDL-ESM4_historical_r1i1p1f1_gr1_195001-201412.nc'
+
+dset_1950 = xr.open_dataset(fp_1950)
+
+nearest_lat_index = abs(dset_1950['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(dset_1950['lon'] - islamabad_lon).argmin().item()
+
+climate_data_at_islamabad_1950 = dset_1950['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# %%
+
+nearest_lat_index = abs(dset_ssp119['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(dset_ssp119['lon'] - islamabad_lon).argmin().item()
+
+climate_data_at_islamabad_ssp119 = dset_ssp119['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# %%
+
+nearest_lat_index = abs(dset_ssp245['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(dset_ssp245['lon'] - islamabad_lon).argmin().item()
+
+climate_data_at_islamabad_ssp245 = dset_ssp245['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# %%
+
+nearest_lat_index = abs(dset_ssp585['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(dset_ssp585['lon'] - islamabad_lon).argmin().item()
+
+climate_data_at_islamabad_ssp585 = dset_ssp585['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# Question 03 (What is the mean air temperature change projected for your city in the 2071–2100 period
+# compared to the pre-industrial period (1850–1900) for each scenario?)
+
+isl_1850 = climate_data_at_islamabad_1850.sel(time=slice('18500116', '19001231')).mean(axis=0).data.item()
+isl_ssp119 = climate_data_at_islamabad_ssp119.sel(time=slice('20710101', '21001231')).mean(axis=0).data.item()
+isl_ssp245 = climate_data_at_islamabad_ssp245.sel(time=slice('20710101', '21001231')).mean(axis=0).data.item()
+isl_ssp585 = climate_data_at_islamabad_ssp585.sel(time=slice('20710101', '21001231')).mean(axis=0).data.item()
+
+print(f'Mean air temperature change projected for Islamabad in the (2071–2100) period compared to the '
+      f'pre-industrial period (1850–1900) for SSP119 is {isl_ssp119-isl_1850}')
+
+# %%
+
+print(f'Mean air temperature change projected for Islamabad in the (2071–2100) period compared to the '
+      f'pre-industrial period (1850–1900) for SSP245 is {isl_ssp245-isl_1850}')
+
+# %%
+
+print(f'Mean air temperature change projected for Islamabad in the (2071–2100) period compared to the '
+      f'pre-industrial period (1850–1900) for SSP585 is {isl_ssp585-isl_1850}')
+
+# Question 04 (What is the global average projected temperature change for each scenario?)
+
+global_1850 = dset_1850['tas'].sel(time=slice('18500116', '19001231')).mean().data.item()
+global_ssp119 = dset_ssp119['tas'].sel(time=slice('20710101', '21001231')).mean().data.item()
+global_ssp245 = dset_ssp245['tas'].sel(time=slice('20710101', '21001231')).mean().data.item()
+global_ssp585 = dset_ssp585['tas'].sel(time=slice('20710101', '21001231')).mean().data.item()
+
+print(f'global average projected temperature change in the (2071–2100) period compared to the '
+      f'pre-industrial period (1850–1900) for SSP119 is {global_ssp119-global_1850}')
+
+# %%
+
+print(f'global average projected temperature change in the (2071–2100) period compared to the '
+      f'pre-industrial period (1850–1900) for SSP245 is {global_ssp245-global_1850}')
+
+# %%
+
+print(f'global average projected temperature change in the (2071–2100) period compared to the '
+      f'pre-industrial period (1850–1900) for SSP585 is {global_ssp585-global_1850}')
+
+# Question 05 (Create air temperature time series plots for 1850–2100. Ensure your plots include clear
+# legends, color bars, titles, and axis labels. Export your figures as high-quality PNG files.)
+
+combined_dset_ssp119 = xr.concat([dset_1850, dset_1950, dset_ssp119], dim='time')
+
+combined_dset_ssp119['tas'].sel(time=slice('18500116', '21001216')).mean(axis=(1,2)).plot()
+ax = plt.gca()
+ax.set_title('Air Temperature time series plot for 1850–2100 for SSP119')
+plt.savefig(os.path.join(path, 'air_temp_time_series_1850-2100_ssp119'), dpi=300)
+plt.show()
+
+# %%
+
+combined_dset_ssp245 = xr.concat([dset_1850, dset_1950, dset_ssp245], dim='time')
+
+combined_dset_ssp245['tas'].sel(time=slice('18500116', '21001216')).mean(axis=(1,2)).plot()
+ax = plt.gca()
+ax.set_title('Air Temperature time series plot for 1850–2100 for SSP245')
+plt.savefig(os.path.join(path, 'air_temp_time_series_1850-2100_ssp245'), dpi=300)
+plt.show()
+
+# %%
+
+combined_dset_ssp585 = xr.concat([dset_1850, dset_1950, dset_ssp585], dim='time')
+
+combined_dset_ssp585['tas'].sel(time=slice('18500116', '21001216')).mean(axis=(1,2)).plot()
+ax = plt.gca()
+ax.set_title('Air Temperature time series plot for 1850–2100 for SSP585')
+plt.savefig(os.path.join(path, 'air_temp_time_series_1850-2100_ssp585'), dpi=300)
+plt.show()
+
+# Question 08 (Bonus Challenge: Create plots that compare both the global averages and the temperature
+# changes specific to your city.)
+
+# Find nearest grid points in the model dataset for SSP119
+nearest_lat_index = abs(combined_dset_ssp119['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(combined_dset_ssp119['lon'] - islamabad_lon).argmin().item()
+
+# Extract data at Islamabad's location
+combined_isl_ssp119 = combined_dset_ssp119['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# %%
+
+# Find nearest grid points in the model dataset for SSP245
+nearest_lat_index = abs(combined_dset_ssp245['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(combined_dset_ssp245['lon'] - islamabad_lon).argmin().item()
+
+# Extract data at Islamabad's location
+combined_isl_ssp245 = combined_dset_ssp245['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# %%
+
+# Find nearest grid points in the model dataset for SSP585
+nearest_lat_index = abs(combined_dset_ssp585['lat'] - islamabad_lat).argmin().item()
+nearest_lon_index = abs(combined_dset_ssp585['lon'] - islamabad_lon).argmin().item()
+
+# Extract data at Islamabad's location
+combined_isl_ssp585 = combined_dset_ssp585['tas'].isel(lat=nearest_lat_index, lon=nearest_lon_index)
+
+# %%
+
+combined_dset_ssp119['tas'].sel(time=slice('18500116', '21001216')).mean(axis=(1,2)).plot(alpha=0.4, label='Combined global SSP119')
+combined_isl_ssp119.plot(alpha=0.4, label='Combined Islamabad SSP119')
+plt.legend()
+ax = plt.gca()
+ax.set_title('Comparison of global averages and the temperature changes specific to Islamabad for SSP119')
+plt.savefig(os.path.join(path, 'air_temp_time_series_comparison_ssp119'), dpi=300)
+plt.show()
+
+# %%
+
+combined_dset_ssp245['tas'].sel(time=slice('18500116', '21001216')).mean(axis=(1,2)).plot(alpha=0.4, label='Combined global SSP245')
+combined_isl_ssp245.plot(alpha=0.4, label='Combined Islamabad SSP245')
+plt.legend()
+ax = plt.gca()
+ax.set_title('Comparison of global averages and the temperature changes specific to Islamabad for SSP245')
+plt.savefig(os.path.join(path, 'air_temp_time_series_comparison_ssp245'), dpi=300)
+plt.show()
+
+# %%
+
+combined_dset_ssp585['tas'].sel(time=slice('18500116', '21001216')).mean(axis=(1,2)).plot(alpha=0.4, label='Combined global SSP585')
+combined_isl_ssp585.plot(alpha=0.4, label='Combined Islamabad SSP585')
+plt.legend()
+ax = plt.gca()
+ax.set_title('Comparison of global averages and the temperature changes specific to Islamabad for SSP585')
+plt.savefig(os.path.join(path, 'air_temp_time_series_comparison_ssp585'), dpi=300)
+plt.show()
